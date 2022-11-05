@@ -4,7 +4,7 @@ import copy
 import numpy as np
 import math
 
-mesh_cylinder = o3d.geometry.TriangleMesh.create_cylinder(radius=0.3,
+mesh_cylinder = o3d.geometry.TriangleMesh.create_cylinder(radius=0.01,
                                                           height=4.0)
 
 def vector_angle(u, v):
@@ -32,10 +32,10 @@ pcd_1.points=o3d.utility.Vector3dVector(p1)
 pcd_2= o3d.geometry.PointCloud()
 pcd_2.points=o3d.utility.Vector3dVector(p2)
 
-angle_1=GetAngle(np.squeeze(p1),np.squeeze(p2))
-angle = np.array([-math.pi/4 ,math.pi/4,-math.pi/4])
+angle_1=np.deg2rad(GetAngle(np.squeeze(p1),np.squeeze(p2)))
+angle = np.array([angle_1 ,-angle_1,0])
 cc=np.vstack([p1,p2])
-R = pcd_1.get_rotation_matrix_from_xyz(angle)
+R = pcd_1.get_rotation_matrix_from_yxz(angle)
 
 def make_point_cloud(npts, center, radius, colorize):
     pts = np.random.uniform(-radius, radius, size=[npts, 3]) + center
@@ -46,7 +46,7 @@ def make_point_cloud(npts, center, radius, colorize):
         cloud.colors = o3d.utility.Vector3dVector(colors)
     return cloud
 
-sphere=make_point_cloud(1024,)
+sphere=make_point_cloud(1024,p1,2,True)
 
 line_set = o3d.geometry.LineSet(
     points=o3d.utility.Vector3dVector(cc),
