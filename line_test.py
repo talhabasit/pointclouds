@@ -29,4 +29,4 @@ line_set = o3d.geometry.LineSet(
     lines=o3d.utility.Vector2iVector(lines),
 )
 line_set.colors = o3d.utility.Vector3dVector(colors)
-o3d.web_visualizer.draw_plotly([line_set])
+o3d.visualization.draw([line_set])

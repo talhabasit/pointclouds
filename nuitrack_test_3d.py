@@ -9,10 +9,11 @@ import time
 from read_calib_file import get_intrinsics_from_json
 import copy
 
-
+from numba import njit,jit
 
 intrinsics = get_intrinsics_from_json(1)
 
+@njit
 def convert_to_o3d(image,depth,skeletons,first_call):
 	all_joints=[]
 	if skeletons[1]:
