@@ -40,7 +40,6 @@ def visualize_pcd(points):
     # visualizer.show()
 
 
-
 npy_dir = "./pcd/"
 joints_dir = "./joints/"
 

@@ -42,8 +42,6 @@ def rotation_from_two_vectors(a,b):
     
     return r
 
-
-
 @njit()
 def rotation_matrix_numpy(axis, theta):
     mat = np.eye(3,3)
@@ -54,25 +52,28 @@ def rotation_matrix_numpy(axis, theta):
     return np.array([[a*a+b*b-c*c-d*d, 2*(b*c-a*d), 2*(b*d+a*c)],
                   [2*(b*c+a*d), a*a+c*c-b*b-d*d, 2*(c*d-a*b)],
                   [2*(b*d-a*c), 2*(c*d+a*b), a*a+d*d-b*b-c*c]])
+    
 
 mesh_cylinder = o3d.geometry.TriangleMesh.create_cylinder(radius=0.01,
                                                           height=4.0)
-
 mesh_cylinder.compute_vertex_normals()
 mesh_cylinder.paint_uniform_color([1, 0, 0])
+
+
+p1_sq=np.array([1,2,1])
+p2_sq=np.array([3,3,2])
+
 mesh_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(
     size=0.3, origin=[0, 0, 0])
 mesh_frame_p1 = o3d.geometry.TriangleMesh.create_coordinate_frame(
-    size=0.3, origin=[1, 2, 1])
+    size=0.3, origin=[0,0,0])
 mesh_frame_p2 = o3d.geometry.TriangleMesh.create_coordinate_frame(
-    size=0.3, origin=[2, 2, 2])
+    size=0.3, origin=p2_sq)
 
 vertices= np.asarray(mesh_cylinder.vertices)
 vertex_normals= np.asarray(mesh_cylinder.vertex_normals)
 
 print("We draw a few primitives using collection.")
-p1_sq=np.array([1,2,1])
-p2_sq=np.array([2,2,2])
 
 origin_sq=np.array([0,0,0])
 origin=np.expand_dims(origin_sq,axis=0)
@@ -86,8 +87,8 @@ pcd_1.points=o3d.utility.Vector3dVector(p1)
 pcd_2= o3d.geometry.PointCloud()
 pcd_2.points=o3d.utility.Vector3dVector(p2)
 
-angle_1=np.deg2rad(GetAngle(np.squeeze(p1),np.squeeze(p2)))
-angle = np.array([-np.pi/3 ,angle_1,0])
+angle_1=np.deg2rad(GetAngle(p1_sq,p2_sq))
+angle = np.array([-np.pi/4,np.pi/4,np.pi/4 ])
 
 
 p1_p2=np.vstack([p1,p2])
@@ -95,17 +96,21 @@ origin_p1_p2=np.vstack([origin,p1,p2])
                   
 line_set = o3d.geometry.LineSet(
     points=o3d.utility.Vector3dVector(origin_p1_p2),
-    lines=o3d.utility.Vector2iVector([[0,1],[0,2],[1,2]])
+    lines=o3d.utility.Vector2iVector([[1,2]])
 )
 
 
-R= rotation_from_two_vectors(p1_sq,p2_sq)
-
+# R= rotation_from_two_vectors(p1_sq,p2_sq)
+R= mesh_cylinder.get_rotation_matrix_from_xyz(angle)
 p3= np.squeeze(p1-1*(p1-p2)/2)
-# R= rotation_matrix_numpy(p3,1.8*(-np.pi/2))
-cyl_rot=copy.deepcopy(mesh_cylinder).rotate(R).translate(p3)
 
-o3d.visualization.draw([line_set,pcd_1,pcd_2,mesh_frame, mesh_frame_p1,mesh_frame_p2,cyl_rot],show_ui=True)
+mesh_frame_p3 = o3d.geometry.TriangleMesh.create_coordinate_frame(
+    size=0.3, origin=p3)
+
+# R= rotation_matrix_numpy(p3,1.8*(-np.pi/2))
+cyl_rot=copy.deepcopy(mesh_cylinder).translate(p3).rotate(R)
+
+o3d.visualization.draw([line_set,pcd_1,pcd_2,mesh_frame_p3,mesh_frame_p1,mesh_frame_p2,cyl_rot],show_ui=True)
 
 
 

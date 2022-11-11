@@ -9,12 +9,12 @@ import time
 from read_calib_file import get_intrinsics_from_json
 import copy
 
-from numba import njit,jit
 
 intrinsics = get_intrinsics_from_json(1)
 
-@njit
+
 def convert_to_o3d(image,depth,skeletons,first_call):
+	start = time.time()
 	all_joints=[]
 	if skeletons[1]:
 		first_skeleton = skeletons[2][0]
@@ -38,7 +38,7 @@ def convert_to_o3d(image,depth,skeletons,first_call):
 	rgbd_image = o3d.geometry.RGBDImage.create_from_color_and_depth(color_raw, depth_raw,depth_trunc=10,convert_rgb_to_intensity=True)
 
 	pcd = o3d.geometry.PointCloud.create_from_rgbd_image(rgbd_image,intrinsic= intrinsics, project_valid_depth_only = False)
-
+	print(time.time()-start)
 	return pcd,pcd_joints
 
 def key_action_callback(vis, action, mods):
@@ -46,6 +46,7 @@ def key_action_callback(vis, action, mods):
 		vis.close()
 		vis.destroy_window()
 	return True
+
 
 def main():
 	o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel.Debug)
@@ -75,7 +76,6 @@ def main():
 
 	vis = o3d.visualization.VisualizerWithKeyCallback()
 	vis.create_window()
-	ctr = vis.get_view_control()
 
 	# for i in range(360):
 	first_call = True
@@ -91,15 +91,15 @@ def main():
 
 		if img_depth.size and img_color.size:
 
-			all_joints=[]
+			all_joints=np.zeros((21,3))
 			if data[1]:
 				first_skeleton = data[2][0]
-				for joints in range(1,21):
-					all_joints.append(first_skeleton[joints].real)
+				for joints in range(0,20):
+					all_joints[joints,:]=first_skeleton[joints].real/1000
+				# all_joints = np.squeeze(np.asanyarray(all_joints)/1000.0)
 			else:
 				# all_joints=[np.random.rand(3) for _ in range(1,21)]
-				all_joints=[np.zeros(3,) for _ in range(1,21)]
-			all_joints = np.squeeze(np.asanyarray(all_joints)/1000.0)
+				all_joints=np.tile(np.zeros(3,),(21,1)) 
 			all_joints[:,2] = all_joints[:,2]*-1
 			if first_call:
 				pcd_joints= o3d.geometry.PointCloud()
@@ -144,4 +144,4 @@ def main():
 	nuitrack.release()
  
 if __name__=="__main__":
-    main()
+	main()
