@@ -8,7 +8,7 @@ def get_intrinsics_from_json(number=1):
     """#This function returns open3d intrinsics matrix as output corresponding to the selected number
     #The numbers are as follow: 0)1920x1080 1)1280x720 2)640x480 3)848x480 4)640x360"""
     
-    with open('C:/Users/talha/Desktop/Nuitrack/Nuitrack/Calib_file.json','r') as f:
+    with open('./Calib_file.json','r') as f:
         data = json.load(f)
     
     w=int(data["rectified.{}.width".format(number)])
@@ -19,9 +19,9 @@ def get_intrinsics_from_json(number=1):
     ppx=float(data["rectified.{}.ppx".format(number)])
     ppy=float(data["rectified.{}.ppy".format(number)])
 
-    return o3d.camera.PinholeCameraIntrinsic(w,h,fx,fy,ppx,ppy)
+    return o3d.camera.PinholeCameraIntrinsic(w,h,fx,fy,ppx,ppy),fx,fy,ppx,ppy
 
 
-x= get_intrinsics_from_json(3)
+
 
 

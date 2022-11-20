@@ -28,16 +28,16 @@ def save_skeleton_as_array(timestamp,timens):
 	for skeleton in data.skeletons:
 		if save_data:
 			with open("C:/Users/Basit/Desktop/PyNuitrack/Nuitrack/joints/{}_{}.npy".format(timestamp,timens),"wb") as f:
-				skeleton_data = ([skeleton.right_wrist.projection[0]/1000,
-				skeleton.right_wrist.projection[1]/1000,
-				skeleton.right_wrist.projection[2]/1000],
-				[skeleton.right_elbow.projection[0]/1000,
-				skeleton.right_elbow.projection[1]/1000,
-				skeleton.right_elbow.projection[2]/1000],
-				[skeleton.right_shoulder.projection[0]/1000,
-				skeleton.right_shoulder.projection[1]/1000,
-				skeleton.right_shoulder.projection[2]/1000])
-				sekel=np.asanyarray(skeleton_data)
+				skeleton_data = ([skeleton.right_wrist.projection[0],
+				skeleton.right_wrist.projection[1],
+				skeleton.right_wrist.projection[2]],
+				[skeleton.right_elbow.projection[0],
+				skeleton.right_elbow.projection[1],
+				skeleton.right_elbow.projection[2]],
+				[skeleton.right_shoulder.projection[0],
+				skeleton.right_shoulder.projection[1],
+				skeleton.right_shoulder.projection[2]])
+				sekel=np.asanyarray(skeleton_data)/1000
 				np.save(f,sekel)
 
 def save_npy(x,y,z,timestamp,timens):
@@ -156,6 +156,7 @@ modes = cycle(["depth", "color"])
 mode = next(modes)
 
 while 1:
+    
 	timens = time.time_ns()
 
 	key = cv2.waitKey(1)
@@ -172,9 +173,9 @@ while 1:
 	if img_depth.size:
 		
 		with mt.ThreadPoolExecutor() as pool:#Tested---> consistent 1ms improvement
+
 			task1=pool.submit(save_depth_as_arrray,img_depth,data.timestamp,timens)
 			task2=pool.submit(save_rgb_as_arrray,img_color,data.timestamp,timens)
-
 
 			task4 = pool.submit(save_skeleton_as_array,data.timestamp,timens)
 
