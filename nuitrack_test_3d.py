@@ -9,11 +9,12 @@ import time
 from read_calib_file import get_intrinsics_from_json
 import copy
 import sys
+from numba import njit
+
 
 
 
 intrinsics,fx,fy,cx,cy = get_intrinsics_from_json(1)
-
 
 def convert_to_o3d(image,depth,skeletons,first_call):
 	start = time.time()
@@ -50,7 +51,7 @@ def key_action_callback(vis, action, mods):
 		os._exit(0)
 	return True
 
-
+@njit
 def depth_from_x_y_z_joints(joint_array:np.ndarray):
 
     for i in range(joint_array.shape[0]):
@@ -144,11 +145,11 @@ def main():
 			if first_call:
 				pcd = o3d.geometry.PointCloud()
 				pcd.points = temp_pcd.points
-				pcd.colors = temp_pcd.colors
+				#pcd.colors = temp_pcd.colors
 				pcd.transform([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
 			else:
 				pcd.points = temp_pcd.points
-				pcd.colors = temp_pcd.colors
+				#pcd.colors = temp_pcd.colors
 				pcd.transform([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
 
 			if first_call:

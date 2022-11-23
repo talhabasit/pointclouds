@@ -7,12 +7,16 @@ import time
 import open3d as o3d
 import os
 import concurrent.futures as mt
-
+import copy
+import pandas
+import sys
+import pickle
+import json
 
 currentdir=os.path.dirname(__file__)
-save_data = False
+save_data = True
 
-def draw_skeleton(image):
+def draw_skeleton(data,image):
 	point_color = (255, 255, 255)
 	for skeleton in data.skeletons:
 		p1=(round(skeleton.right_shoulder.projection[0]),round(skeleton.right_shoulder.projection[1]))
@@ -23,8 +27,9 @@ def draw_skeleton(image):
 		cv2.circle(image, p3, 8, point_color, -1)
 		cv2.line(image,p1 ,p2 ,color= point_color)
 		cv2.line(image,p2 ,p3 ,color= point_color)
+		print("skeleton")
 
-def save_skeleton_as_array(timestamp,timens):
+def save_skeleton_as_array(data,timestamp,timens):
 	for skeleton in data.skeletons:
 		if save_data:
 			with open("C:/Users/Basit/Desktop/PyNuitrack/Nuitrack/joints/{}_{}.npy".format(timestamp,timens),"wb") as f:
@@ -39,8 +44,15 @@ def save_skeleton_as_array(timestamp,timens):
 				skeleton.right_shoulder.projection[2]])
 				sekel=np.asanyarray(skeleton_data)/1000
 				np.save(f,sekel)
+    
+def save_skeleton_as_dict(data,timens):
+	if data.skeletons:
+		if save_data:
+			with open("./joints/{}_{}.json".format(data.timestamp,timens),"wb") as f:
+				f.write(json.dumps(data._asdict()))
+				print("saved_skeleton")
 
-def save_npy(x,y,z,timestamp,timens):
+def save_npy(data,x,y,z,timestamp,timens):
 	xyz=np.column_stack((x,y,z))
 	if data.skeletons:
 		if save_data:
@@ -48,21 +60,21 @@ def save_npy(x,y,z,timestamp,timens):
 				np.save(f,xyz)
 			# print(f"{timestamp}_saved")
 
-def save_depth_as_arrray(array,timestamp,timens):
+def save_depth_as_array(data,array,timestamp,timens):
 	if data.skeletons:
 		if save_data:
 			with open("./pcd/depth/{}_{}.npy".format(timestamp,timens),"wb") as f:
 				np.save(f,array)
 			# print(f"{timestamp}_saved")
    
-def save_rgb_as_arrray(array,timestamp,timens):
+def save_rgb_as_array(data,array,timestamp,timens):
 	if data.skeletons:
 			if save_data:
 				with open("./pcd/rgb/{}_{}.npy".format(timestamp,timens),"wb") as f:
 					np.save(f,array)
 				# print(f"{timestamp}_saved")
 
-def Savepcd(x,y,z,timestamp,timens):
+def Savepcd(data,x,y,z,timestamp,timens):
 	"""
 	Takes XYZ data as Z16, converts it to a PCD and writes it to a file 
 	"""
@@ -127,81 +139,85 @@ def convert_depth_frame_to_pointcloud(depth_image):
 	return x, y, z
 
 
+def main():
 
-nuitrack = py_nuitrack.Nuitrack()
-nuitrack.init()
+	nuitrack = py_nuitrack.Nuitrack()
+	nuitrack.init()
 
-# ---enable if you want to use face tracking---
-#nuitrack.set_config_value("Faces.ToUse", "true")
-nuitrack.set_config_value("DepthProvider.Depth2ColorRegistration", "true")
-nuitrack.set_config_value("Realsense2Module.Depth.ProcessWidth", "1280")
-nuitrack.set_config_value("Realsense2Module.Depth.ProcessHeight", "720")
-nuitrack.set_config_value("Realsense2Module.Depth.ProcessMaxDepth", "7000")
-nuitrack.set_config_value("Realsense2Module.RGB.ProcessWidth", "1280")
-nuitrack.set_config_value("Realsense2Module.RGB.ProcessHeight", "720")
+	# ---enable if you want to use face tracking---
+	#nuitrack.set_config_value("Faces.ToUse", "true")
+	nuitrack.set_config_value("DepthProvider.Depth2ColorRegistration", "true")
+	nuitrack.set_config_value("Realsense2Module.Depth.ProcessWidth", "1280")
+	nuitrack.set_config_value("Realsense2Module.Depth.ProcessHeight", "720")
+	nuitrack.set_config_value("Realsense2Module.Depth.ProcessMaxDepth", "7000")
+	nuitrack.set_config_value("Realsense2Module.RGB.ProcessWidth", "1280")
+	nuitrack.set_config_value("Realsense2Module.RGB.ProcessHeight", "720")
 
-devices = nuitrack.get_device_list()
+	devices = nuitrack.get_device_list()
 
-for i, dev in enumerate(devices):
-	print(dev.get_name(), dev.get_serial_number())
-	if i == 0:
-		#dev.activate("ACTIVATION_KEY") #you can activate device using python api
-		print(dev.get_activation())
-		nuitrack.set_device(dev)
+	for i, dev in enumerate(devices):
+		print(dev.get_name(), dev.get_serial_number())
+		if i == 0:
+			#dev.activate("ACTIVATION_KEY") #you can activate device using python api
+			print(dev.get_activation())
+			nuitrack.set_device(dev)
 
-nuitrack.create_modules()
-nuitrack.run()
+	nuitrack.create_modules()
+	nuitrack.run()
 
-modes = cycle(["depth", "color"])
-mode = next(modes)
-
-while 1:
-    
-	timens = time.time_ns()
-
-	key = cv2.waitKey(1)
-	
-	nuitrack.update()
-	data = nuitrack.get_skeleton()
-	
-	data_instance=nuitrack.get_instance()
-	img_depth = nuitrack.get_depth_data()
-	img_color = nuitrack.get_color_data()
-	
-	x,y,z=convert_depth_frame_to_pointcloud(img_depth)
-
-	if img_depth.size:
+	modes = cycle(["depth", "color"])
+	mode = next(modes)
+	first_call = True
+	while 1:
 		
-		with mt.ThreadPoolExecutor() as pool:#Tested---> consistent 1ms improvement
+		timens = time.time_ns()
 
-			task1=pool.submit(save_depth_as_arrray,img_depth,data.timestamp,timens)
-			task2=pool.submit(save_rgb_as_arrray,img_color,data.timestamp,timens)
+		key = cv2.waitKey(1)
 
-			task4 = pool.submit(save_skeleton_as_array,data.timestamp,timens)
+		nuitrack.update()
+		data = nuitrack.get_skeleton()
+		img_depth = nuitrack.get_depth_data()
+		img_color = nuitrack.get_color_data()
+		
+		x,y,z=convert_depth_frame_to_pointcloud(img_depth)
 
-			if mode == "depth":
-				task3=pool.submit(draw_skeleton,img_depth)
-			else:
-				task3=pool.submit(draw_skeleton,img_color)
-
-			futures=[task1,task2,task3,task4] #Python internal datatype may incur overhead
-			done, not_done = mt.wait(futures, return_when=mt.ALL_COMPLETED)
-			if done:
-				pass
-	
-		cv2.normalize(img_depth, img_depth, 0, 255, cv2.NORM_MINMAX)#scale depth with depth-min/max and between (0,255)
-
-		img_depth = np.array(cv2.cvtColor(img_depth,cv2.COLOR_GRAY2RGB), dtype=np.uint8)
-
-	if key == 32:
-		mode = next(modes)
-	if mode == "depth":
 		if img_depth.size:
-			cv2.imshow('Image', img_depth)
-	if mode == "color":
-		if img_color.size:
-			cv2.imshow('Image', img_color)
-	if key == 27:
-		break
+			
+			with mt.ThreadPoolExecutor() as pool:#Tested---> consistent 1ms improvement
 
-nuitrack.release()
+				task1=pool.submit(save_depth_as_array,data,img_depth,data.timestamp,timens)
+	
+				task2=pool.submit(save_rgb_as_array,data,img_color,data.timestamp,timens)
+
+				save_skeleton_as_dict(data,timens)
+	
+				if mode == "depth":
+					task3=pool.submit(draw_skeleton,data,img_depth)
+				else:
+					task3=pool.submit(draw_skeleton,data,img_color)
+     
+				futures=[task1,task2,task3] #Python internal datatype may incur overhead
+				done, _ = mt.wait(futures, return_when=mt.ALL_COMPLETED)
+				if done:
+					pass
+		
+			cv2.normalize(img_depth, img_depth, 0, 255, cv2.NORM_MINMAX)#scale depth with depth-min/max and between (0,255)
+
+			img_depth = np.array(cv2.cvtColor(img_depth,cv2.COLOR_GRAY2RGB), dtype=np.uint8)
+
+		if key == 32:
+			mode = next(modes)
+		if mode == "depth":
+			if img_depth.size:
+				cv2.imshow('Image', img_depth)
+		if mode == "color":
+			if img_color.size:
+				cv2.imshow('Image', img_color)
+		if key == 27:
+			break
+		print("{} ms".format((time.time_ns()-timens)/1e6))
+
+	nuitrack.release()
+
+if __name__=="__main__":
+	sys.exit(main())
