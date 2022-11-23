@@ -9,7 +9,7 @@ import time
 from read_calib_file import get_intrinsics_from_json
 import copy
 import sys
-from numba import njit
+from numba import njit,prange
 
 
 
@@ -51,10 +51,10 @@ def key_action_callback(vis, action, mods):
 		os._exit(0)
 	return True
 
-@njit
+@njit(cache=True,parallel=True,fastmath=True)
 def depth_from_x_y_z_joints(joint_array:np.ndarray):
 
-    for i in range(joint_array.shape[0]):
+    for i in prange(joint_array.shape[0]):
         joint_array[i,0] =  (joint_array[i,0]-cx)*joint_array[i,2]/fx
         joint_array[i,1] =  (joint_array[i,1]-cy)*joint_array[i,2]/fy
     return joint_array
@@ -168,4 +168,4 @@ def main():
 	nuitrack.release()
  
 if __name__=="__main__":
-	sys.exit(main())
+	main()
