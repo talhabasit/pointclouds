@@ -14,7 +14,7 @@ import pickle
 import json
 
 currentdir=os.path.dirname(__file__)
-save_data = True
+save_data = False
 
 def draw_skeleton(data,image):
 	point_color = (255, 255, 255)
@@ -27,12 +27,11 @@ def draw_skeleton(data,image):
 		cv2.circle(image, p3, 8, point_color, -1)
 		cv2.line(image,p1 ,p2 ,color= point_color)
 		cv2.line(image,p2 ,p3 ,color= point_color)
-		print("skeleton")
 
 def save_skeleton_as_array(data,timestamp,timens):
 	for skeleton in data.skeletons:
 		if save_data:
-			with open("C:/Users/Basit/Desktop/PyNuitrack/Nuitrack/joints/{}_{}.npy".format(timestamp,timens),"wb") as f:
+			with open("./joints/{}_{}.npy".format(timestamp,timens),"wb") as f:
 				skeleton_data = ([skeleton.right_wrist.projection[0],
 				skeleton.right_wrist.projection[1],
 				skeleton.right_wrist.projection[2]],
@@ -42,7 +41,7 @@ def save_skeleton_as_array(data,timestamp,timens):
 				[skeleton.right_shoulder.projection[0],
 				skeleton.right_shoulder.projection[1],
 				skeleton.right_shoulder.projection[2]])
-				sekel=np.asanyarray(skeleton_data)/1000
+				sekel=np.asanyarray(skeleton_data)
 				np.save(f,sekel)
     
 def save_skeleton_as_dict(data,timens):
@@ -189,17 +188,18 @@ def main():
 	
 				task2=pool.submit(save_rgb_as_array,data,img_color,data.timestamp,timens)
 
-				save_skeleton_as_dict(data,timens)
+				task3 = pool.submit(save_skeleton_as_array,data,data.timestamp,timens)
 	
-				if mode == "depth":
-					task3=pool.submit(draw_skeleton,data,img_depth)
-				else:
-					task3=pool.submit(draw_skeleton,data,img_color)
      
 				futures=[task1,task2,task3] #Python internal datatype may incur overhead
 				done, _ = mt.wait(futures, return_when=mt.ALL_COMPLETED)
 				if done:
 					pass
+ 
+			if mode == "depth":
+				draw_skeleton(data,img_depth)
+			else:
+				draw_skeleton(data,img_color)
 		
 			cv2.normalize(img_depth, img_depth, 0, 255, cv2.NORM_MINMAX)#scale depth with depth-min/max and between (0,255)
 
