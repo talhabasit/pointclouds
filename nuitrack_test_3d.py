@@ -12,7 +12,7 @@ import sys
 from numba import njit,prange,jit
 
 
-
+joints_color = np.array([255,0,0])
 
 intrinsics,fx,fy,cx,cy = get_intrinsics_from_json(1)
 
@@ -141,7 +141,7 @@ def main():
 
 			if first_call:
 				pcd_joints= o3d.geometry.PointCloud()
-				pcd_joints.paint_uniform_color(np.array([[255],[0],[0]]))
+				pcd_joints.color=o3d.utility.Vector3dVector(np.tile(joints_color,(21,1)))
 				pcd_joints.points = o3d.utility.Vector3dVector(all_joints)
 			else:
 				pcd_joints.points=o3d.utility.Vector3dVector(all_joints)
