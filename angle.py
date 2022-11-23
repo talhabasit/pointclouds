@@ -31,7 +31,6 @@ def rotation_matrix(A,B):
 @njit(fastmath=True,cache=True,parallel=True)
 def rod_rot(f,t):
     v = np.cross(f, t)
-    u = v/np.linalg.norm(v)
     c = np.dot(f, t)
     h = (1 - c)/(1 - c**2)
 

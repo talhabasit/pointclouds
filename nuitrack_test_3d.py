@@ -9,7 +9,7 @@ import time
 from read_calib_file import get_intrinsics_from_json
 import copy
 import sys
-from numba import njit,prange
+from numba import njit,prange,jit
 
 
 
@@ -44,12 +44,6 @@ def convert_to_o3d(image,depth,skeletons,first_call):
 	print(time.time()-start)
 	return pcd,pcd_joints
 
-def key_action_callback(vis, action, mods):
-	if action == 1:  # key down
-		vis.destroy_window()
-		vis.close()
-		os._exit(0)
-	return True
 
 @njit(cache=True,parallel=True,fastmath=True)
 def depth_from_x_y_z_joints(joint_array:np.ndarray):
@@ -87,22 +81,51 @@ def init_nuitrack():
 	nuitrack.run()
 	return nuitrack
 
+def return_joints(skeleton_data=np.tile(np.zeros(3,),(21,1)), skeleton = False):
+	if skeleton:
+		all_joints= np.zeros((21,3))
+		first_skeleton = skeleton_data
+		for joint_number in range(1,21):
+			all_joints[joint_number,:]=first_skeleton[joint_number].projection
+		all_joints = depth_from_x_y_z_joints(all_joints)
+		all_joints = all_joints/1000.0
+		return  all_joints
+	else:
+		return skeleton_data 
+
+def create_pcd_from_img_depth(img_color,img_depth,downsample=False, ds_factor = 0):
+	color_raw = o3d.geometry.Image(img_color)
+	depth_raw = o3d.geometry.Image(img_depth)
+
+	rgbd_image = o3d.geometry.RGBDImage.create_from_color_and_depth(color_raw, depth_raw,depth_trunc=7,convert_rgb_to_intensity=False)
+
+	temp_pcd = o3d.geometry.PointCloud.create_from_rgbd_image(rgbd_image,intrinsic= intrinsics, project_valid_depth_only = False)
+	if downsample:
+		temp_pcd = temp_pcd.voxel_down_sample(voxel_size=ds_factor)	
+	return temp_pcd
+
 def main():
-	o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel.Debug)
 	vis = o3d.visualization.VisualizerWithKeyCallback()
 	vis.create_window()
 	nuitrack = init_nuitrack()
 	# for i in range(360):
  
 	first_call = True
-	mesh_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(
-    size=0.6, origin=[0, 0, 0])
 	rd_options = vis.get_render_option()
-	rd_options.point_size = 4
+	rd_options.point_size = 3
+	rd_options.show_coordinate_frame = True
  
- 
+	def key_action_callback(vis, action, mods):
+		if action == 1:  # key down
+			vis.destroy_window()
+			vis.close()
+			nuitrack.release()
+			os._exit(0)
+		return True
+
+	
 	while 1:
-     
+    
 		start = time.time_ns()
 		nuitrack.update()
 		data = nuitrack.get_skeleton()
@@ -110,52 +133,39 @@ def main():
 		img_color = nuitrack.get_color_data()
 
 		if img_depth.size and img_color.size:
-
-			all_joints=np.zeros((21,3))
-			if data[1]:
-				first_skeleton = data[2][0]
-				for joints in range(1,21):
-					all_joints[joints,:]=first_skeleton[joints].projection
-				all_joints = depth_from_x_y_z_joints(all_joints)
-				# all_joints = np.squeeze(np.asanyarray(all_joints)/1000.0)
+			if data[1] != 0:
+				bed = True
+				all_joints = return_joints(data[2][0],bed)
 			else:
-				# all_joints=[np.random.rand(3) for _ in range(1,21)]
-				all_joints=np.tile(np.zeros(3,),(21,1)) 
-    
-			all_joints = all_joints/1000
-			
+				all_joints= return_joints()
+
 			if first_call:
 				pcd_joints= o3d.geometry.PointCloud()
+				pcd_joints.paint_uniform_color(np.array([[255],[0],[0]]))
 				pcd_joints.points = o3d.utility.Vector3dVector(all_joints)
 			else:
 				pcd_joints.points=o3d.utility.Vector3dVector(all_joints)
     
 			pcd_joints.transform([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
-   
-			color_raw = o3d.geometry.Image(img_color)
-			depth_raw = o3d.geometry.Image(img_depth)
 
-			rgbd_image = o3d.geometry.RGBDImage.create_from_color_and_depth(color_raw, depth_raw,depth_trunc=7,convert_rgb_to_intensity=False)
-
-			temp_pcd = o3d.geometry.PointCloud.create_from_rgbd_image(rgbd_image,intrinsic= intrinsics, project_valid_depth_only = False)
-			#temp_pcd = temp_pcd.voxel_down_sample(voxel_size=0.1)	
+			img_color = cv2.cvtColor(img_color,cv2.COLOR_BGR2RGB)
+			temp_pcd = create_pcd_from_img_depth(img_color,img_depth)
 
 			vis.register_key_action_callback(ord("Q"),key_action_callback)
 
 			if first_call:
 				pcd = o3d.geometry.PointCloud()
 				pcd.points = temp_pcd.points
-				#pcd.colors = temp_pcd.colors
+				pcd.colors = temp_pcd.colors
 				pcd.transform([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
 			else:
 				pcd.points = temp_pcd.points
-				#pcd.colors = temp_pcd.colors
+				pcd.colors = temp_pcd.colors
 				pcd.transform([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
 
 			if first_call:
 				vis.add_geometry(pcd_joints)
 				vis.add_geometry(pcd)
-				vis.add_geometry(mesh_frame)
 				first_call = False
 			else:
 				vis.update_geometry(pcd_joints)
@@ -164,8 +174,8 @@ def main():
 		vis.update_renderer()
 			
 		print(f"{(time.time_ns()-start)/1e6} ms")
-	time.sleep(5)
-	nuitrack.release()
+	#nuitrack.release()
+	print("while end")
  
 if __name__=="__main__":
 	main()

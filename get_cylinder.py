@@ -4,7 +4,6 @@ from angle import rod_rot
 from numba import jit
 import time
 
-@jit(cache=True,fastmath=True)
 def create_cylinder_two_point(p1,p2):
 	mesh_cylinder = o3d.geometry.TriangleMesh.create_cylinder(
 	radius=0.1, height=np.linalg.norm(p2-p1))
@@ -33,4 +32,5 @@ def main():
 
 if __name__=="__main__":
 	main()
+	
 
