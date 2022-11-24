@@ -23,3 +23,5 @@
 
 1. 2D and 3D visulaizations are complete 
 2. The 3D is taking ~40ms per frame whereas the 2D one is taking ~7-8ms per Frame
+3. The cylinder alignment worked and the points can be extracted with BBs 
+4. Ply testing in ongoing
