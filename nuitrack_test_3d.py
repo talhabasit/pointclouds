@@ -135,13 +135,12 @@ def main():
 		if img_depth.size and img_color.size:
 			if data[1] != 0:
 				bed = True
-				all_joints = return_joints(data[2][0],bed)
+				all_joints = return_joints(data[2][0],bed)                                       
 			else:
 				all_joints= return_joints()
 
 			if first_call:
 				pcd_joints= o3d.geometry.PointCloud()
-				pcd_joints.color=o3d.utility.Vector3dVector(np.tile(joints_color,(21,1)))
 				pcd_joints.points = o3d.utility.Vector3dVector(all_joints)
 			else:
 				pcd_joints.points=o3d.utility.Vector3dVector(all_joints)

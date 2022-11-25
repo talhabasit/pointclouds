@@ -5,8 +5,7 @@ from numba import jit
 import time
 
 def create_cylinder_two_point(p1,p2,radius=0.1):
-	mesh_cylinder = o3d.geometry.TriangleMesh.create_cylinder(
-	radius=radius, height=np.linalg.norm(p2-p1))
+	mesh_cylinder = o3d.geometry.TriangleMesh.create_cylinder(radius=radius, height=np.linalg.norm(p2-p1)+.05)
 	mesh_cylinder.compute_vertex_normals()
 	mesh_cylinder.paint_uniform_color([1, 0, 0])
 	mid_point = np.squeeze(p1-1*(p1-p2)/2)

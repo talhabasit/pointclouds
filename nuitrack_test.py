@@ -14,7 +14,7 @@ import pickle
 import json
 
 currentdir=os.path.dirname(__file__)
-save_data = False
+save_data = True
 
 def draw_skeleton(data,image):
 	point_color = (255, 255, 255)

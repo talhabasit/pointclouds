@@ -20,7 +20,7 @@ intrinsics,fx,fy,cx,cy = get_intrinsics_from_json(1)
 
 def load_joints_as_pts():
 #wrist elbow shoulder
-	joints = np.load("./joints/1669222128156672_1669222104307698700.npy").astype(np.float64)
+	joints = np.load("./joints/1669312322469888_1669312265023910500.npy").astype(np.float64)
 	joints = depth_from_x_y_z_joints(joints)/1000
 
 	return joints[0],joints[1],joints[2]
@@ -74,14 +74,9 @@ def write_3d_point_cloud_to_ply(path_to_ply_file, coordinates, colors=None,
 def main():
 	
 	p1,p2,p3 = load_joints_as_pts()
-	pcd_with_labels = np.random.randn(100,4)
-	x = pcd_with_labels[:,:-1]
-	labels = pcd_with_labels[:,3]
-	labels = np.where(labels > 1,0,1)
 
-	write_3d_point_cloud_to_ply("test.ply",x,extra_properties=labels,extra_properties_names=["label"])
-	
- 
+
+	# write_3d_point_cloud_to_ply("test.ply",x,extra_properties=labels,extra_properties_names=["label"])
 
 	forearm_cyl = create_cylinder_two_point(p1,p2,.1)
 	upperarm_cyl = create_cylinder_two_point(p2,p3,.1)
@@ -94,14 +89,15 @@ def main():
 	mesh_frame_p3 = o3d.geometry.TriangleMesh.create_coordinate_frame(
 		size=0.3, origin=p3)
  
-	img_load=np.load("./pcd/rgb/1669222128156672_1669222104307698700.npy")
-	depth_load=np.load("./pcd/depth/1669222128156672_1669222104307698700.npy")
+	img_load=np.load("./pcd/rgb/1669312322469888_1669312265023910500.npy")
+	depth_load=np.load("./pcd/depth/1669312322469888_1669312265023910500.npy")
 	img_load=cv2.cvtColor(img_load,cv2.COLOR_BGR2RGB)
 
 	pcd = create_pcd_from_img_depth(img_load,depth_load)
 	pcd.transform([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
 	# pcd= pcd.uniform_down_sample(every_k_points=100)
-	pcd= pcd.random_down_sample(0.05)
+	pcd= pcd.random_down_sample(0.1)
+	
 	# pcd_down_sample = pcd.uniform_down_sample(every_k_points=100)
 	
 	forearm_bb = forearm_cyl.get_oriented_bounding_box()
@@ -114,10 +110,10 @@ def main():
 	
 	
 	same_elements = np.intersect1d(list_forearm,list_upperarm)
-
+	print(f"Same points :{same_elements.shape[0]}")
 	# o3d.io.write_point_cloud("./test.pts",forearm_pcd)
-	o3d.visualization.draw([forearm_pcd,upperarm_pcd,forearm_cyl,upperarm_cyl,upperarm_bb,forearm_bb], show_ui=True)
-	# o3d.visualization.draw([pcd_down_sample], show_ui=True)
+	# o3d.visualization.draw([forearm_pcd,upperarm_pcd,forearm_cyl,upperarm_cyl,upperarm_bb,forearm_bb], show_ui=True)
+	o3d.visualization.draw([pcd,upperarm_bb,forearm_bb], show_ui=True)
 
 if __name__=="__main__":
 	main()
