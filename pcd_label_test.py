@@ -9,7 +9,13 @@ from read_calib_file import get_intrinsics_from_json
 import plyfile as ply
 from functools import cache
 from numba import njit
+import os
+import time
 
+from tkinter import filedialog as fd 
+
+
+file_name = os.path.basename(__file__)
 
 
 forearm_color = np.array([1,0,0])
@@ -20,22 +26,22 @@ intrinsics,fx,fy,cx,cy = get_intrinsics_from_json(1)
 
 
 @cache
-def load_joints_as_pts():
+def load_joints_as_pts(filename):
 #wrist elbow shoulder
-	joints = np.load("./joints/1669551364243456_1669551349310513400.npy").astype(np.float64)
+	joints = np.load(f"./joints/{filename}.npy").astype(np.float64)
 	joints = depth_from_x_y_z_joints(joints)/1000
 
 	return joints[0],joints[1],joints[2]
 
 @njit(parallel = True,fastmath = True)
 def return_class_column_array(cylinder_list,pcd_points,class_label):
-    x = np.zeros(pcd_points.shape[0])
-    x[cylinder_list] = class_label
-    return x
-    
+	x = np.zeros(pcd_points.shape[0])
+	x[cylinder_list] = class_label
+	return x
+	
 def save_array_with_labels():
-    pass
-    
+	pass
+	
 
 def write_3d_point_cloud_to_ply(path_to_ply_file, coordinates, colors=None,
 								extra_properties=None,
@@ -83,8 +89,9 @@ def write_3d_point_cloud_to_ply(path_to_ply_file, coordinates, colors=None,
 
 
 def main():
-	
-	p1,p2,p3 = load_joints_as_pts()
+	filename = fd.askopenfilename()
+	filename = filename.split("/")[-1].split(".npy")[0]
+	p1,p2,p3 = load_joints_as_pts(filename)
 
 
 	# write_3d_point_cloud_to_ply("test.ply",x,extra_properties=labels,extra_properties_names=["label"])
@@ -99,8 +106,8 @@ def main():
 	# mesh_frame_p2 = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.3, origin=p2)
 	# mesh_frame_p3 = o3d.geometry.TriangleMesh.create_coordinate_frame(size=0.3, origin=p3)
  
-	img_load=np.load("./pcd/rgb/1669551364243456_1669551349310513400.npy")
-	depth_load=np.load("./pcd/depth/1669551364243456_1669551349310513400.npy")
+	img_load=np.load(f"./pcd/rgb/{filename}.npy")
+	depth_load=np.load(f"./pcd/depth/{filename}.npy")
 	img_load=cv2.cvtColor(img_load,cv2.COLOR_BGR2RGB)
 
 	pcd = create_pcd_from_img_depth(img_load,depth_load)
@@ -136,14 +143,14 @@ def main():
 	# o3d.visualization.draw([pcd,upperarm_bb,forearm_bb], show_ui=True)
 
 if __name__ == '__main__':
-    with cProfile.Profile() as pr:
-        main()
+	with cProfile.Profile() as pr:
+		main()
 
-    stats = pstats.Stats(pr)
-    stats.sort_stats(pstats.SortKey.TIME)
-    #stats.print_stats()
-    stats.dump_stats(filename='needs_profiling.prof')
-    
+	stats = pstats.Stats(pr)
+	stats.sort_stats(pstats.SortKey.TIME)
+	#stats.print_stats()
+	stats.dump_stats(filename=f"./profiling_runs/{file_name}_{time.time_ns()}.prof")
+	
 
 
 		

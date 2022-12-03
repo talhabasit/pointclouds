@@ -19,7 +19,7 @@ def get_intrinsics_from_json(number=1):
     ppx=float(data["rectified.{}.ppx".format(number)])
     ppy=float(data["rectified.{}.ppy".format(number)])
 
-    return o3d.camera.PinholeCameraIntrinsic(w,h,fx,fy,ppx,ppy),fx,fy,ppx,ppy
+    return o3d.camera.PinholeCameraIntrinsic(w,h,fx,fy,ppx,ppy),fx,fy,ppx,ppy,w,h
 
 
 

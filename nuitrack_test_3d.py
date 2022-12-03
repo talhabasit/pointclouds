@@ -17,7 +17,7 @@ file_name = os.path.basename(__file__)
 
 joints_color = np.array([255, 0, 0])
 
-intrinsics, fx, fy, cx, cy = get_intrinsics_from_json(3)
+intrinsics, fx, fy, cx, cy ,width ,height= get_intrinsics_from_json(3)
 
 
 def convert_to_o3d(image, depth, skeletons, first_call):
@@ -68,13 +68,13 @@ def init_nuitrack():
     # ---enable if you want to use face tracking---
     #nuitrack.set_config_value("Faces.ToUse", "true")
     nuitrack.set_config_value("DepthProvider.Depth2ColorRegistration", "true")
-    nuitrack.set_config_value("Realsense2Module.Depth.ProcessWidth", "848")
-    nuitrack.set_config_value("Realsense2Module.Depth.ProcessHeight", "480")
+    nuitrack.set_config_value("Realsense2Module.Depth.ProcessWidth", f"{width}")
+    nuitrack.set_config_value("Realsense2Module.Depth.ProcessHeight", f"{height}")
     nuitrack.set_config_value("Realsense2Module.Depth.ProcessMaxDepth", "7000")
     nuitrack.set_config_value("Realsense2Module.Depth.Preset", "4")
-    nuitrack.set_config_value("Realsense2Module.Depth.FPS", "90")
-    nuitrack.set_config_value("Realsense2Module.RGB.ProcessWidth", "848")
-    nuitrack.set_config_value("Realsense2Module.RGB.ProcessHeight", "480")
+    nuitrack.set_config_value("Realsense2Module.Depth.FPS", "60")
+    nuitrack.set_config_value("Realsense2Module.RGB.ProcessWidth", f"{width}")
+    nuitrack.set_config_value("Realsense2Module.RGB.ProcessHeight", f"{height}")
     nuitrack.set_config_value("Realsense2Module.RGB.FPS", "60")
 
     devices = nuitrack.get_device_list()
@@ -96,7 +96,8 @@ def return_joints(skeleton_data=np.tile(np.zeros(3,), (21, 1)), skeleton=False):
         all_joints = np.zeros((21, 3))
         first_skeleton = skeleton_data
         for joint_number in range(1, 21):
-            all_joints[joint_number,:] = first_skeleton[joint_number].projection
+            all_joints[joint_number,
+                       :] = first_skeleton[joint_number].projection
         all_joints = depth_from_x_y_z_joints(all_joints)
         all_joints = all_joints/1000.0
         return all_joints
@@ -104,7 +105,7 @@ def return_joints(skeleton_data=np.tile(np.zeros(3,), (21, 1)), skeleton=False):
         return skeleton_data
 
 
-def create_pcd_from_img_depth(img_color, img_depth, downsample=False, ds_factor=0):
+def create_pcd_from_img_depth(img_color, img_depth, downsample=False, ds_factor=0.1):
     color_raw = o3d.geometry.Image(img_color)
     depth_raw = o3d.geometry.Image(img_depth)
 
@@ -118,9 +119,9 @@ def create_pcd_from_img_depth(img_color, img_depth, downsample=False, ds_factor=
     return temp_pcd
 
 
-def lines(line_data:np.ndarray):
-    #draw a point set
-    points = line_data[0,:,:]
+def lines(line_data: np.ndarray):
+    # draw a point set
+    points = line_data[0, :, :]
     lines = [
         [0, 1],
         [1, 2]
@@ -132,6 +133,7 @@ def lines(line_data:np.ndarray):
     )
     #line_set.colors = o3d.utility.Vector3dVector(colors)
     return line_set
+
 
 def main():
     vis = o3d.visualization.VisualizerWithKeyCallback()
@@ -177,7 +179,8 @@ def main():
                 [[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
 
             img_color = cv2.cvtColor(img_color, cv2.COLOR_BGR2RGB)
-            temp_pcd = create_pcd_from_img_depth(img_color, img_depth)
+            temp_pcd = create_pcd_from_img_depth(
+                img_color, img_depth, downsample=True, )
 
             vis.register_key_action_callback(ord("Q"), key_action_callback)
 
@@ -204,7 +207,6 @@ def main():
         vis.update_renderer()
 
         print(f"{(time.time_ns()-start)/1e6} ms")
-
 
 
 if __name__ == '__main__':
