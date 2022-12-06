@@ -1,6 +1,5 @@
 import numpy as np
 import cv2
-from numba import njit
 import time
 
 
@@ -72,7 +71,7 @@ while True:
     print(f"{fps:.2f} FPS")
 
     cv2.imshow('flow', draw_flow(gray, flow))
-    #cv2.imshow('flow HSV', draw_hsv(flow))
+    cv2.imshow('flow HSV', draw_hsv(flow))
 
 
     key = cv2.waitKey(5)

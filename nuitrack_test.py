@@ -1,22 +1,21 @@
 
 import concurrent.futures as mt
-import copy
+
 import json
 import os
-import pickle
-import sys
 import time
 from itertools import cycle
 
 import cv2
 import numpy as np
 import open3d as o3d
-import pandas
+
 from PyNuitrack import py_nuitrack
+from read_calib_file import get_intrinsics_from_json
 
 file_name  = os.path.basename(__file__)
 currentdir = os.path.dirname(__file__)
-save_data = True
+save_data = False
 
 
 def draw_skeleton(data, image):
@@ -31,14 +30,14 @@ def draw_skeleton(data, image):
         cv2.circle(image, p1, 8, point_color, -1)
         cv2.circle(image, p2, 8, point_color, -1)
         cv2.circle(image, p3, 8, point_color, -1)
-        cv2.line(image, p1, p2, color=point_color)
-        cv2.line(image, p2, p3, color=point_color)
+        cv2.line(image, p1, p2, color=point_color,thickness=2)  
+        cv2.line(image, p2, p3, color=point_color,thickness=2)
 
 
 def save_skeleton_as_array(data, timestamp, timens):
     for skeleton in data.skeletons:
         if save_data:
-            with open("./joints/{}_{}.npy".format(timestamp, timens), "wb") as f:
+            with open("./joints/{}_{}.npy".format(timestamp, timens), "w") as f:
                 skeleton_data = ([skeleton.right_wrist.projection[0],
                                   skeleton.right_wrist.projection[1],
                                   skeleton.right_wrist.projection[2]],
@@ -151,7 +150,9 @@ def convert_depth_frame_to_pointcloud(depth_image):
     return x, y, z
 
 
-def main():
+def init_nuitrack():
+    _, _, _, _, _, width, height = get_intrinsics_from_json(3)
+    fps = 60 
 
     nuitrack = py_nuitrack.Nuitrack()
     nuitrack.init()
@@ -159,14 +160,17 @@ def main():
     # ---enable if you want to use face tracking---
     #nuitrack.set_config_value("Faces.ToUse", "true")
     nuitrack.set_config_value("DepthProvider.Depth2ColorRegistration", "true")
-    nuitrack.set_config_value("Realsense2Module.Depth.ProcessWidth", "848")
-    nuitrack.set_config_value("Realsense2Module.Depth.ProcessHeight", "480")
+    nuitrack.set_config_value(
+        "Realsense2Module.Depth.ProcessWidth", f"{width}")
+    nuitrack.set_config_value(
+        "Realsense2Module.Depth.ProcessHeight", f"{height}")
     nuitrack.set_config_value("Realsense2Module.Depth.ProcessMaxDepth", "7000")
     nuitrack.set_config_value("Realsense2Module.Depth.Preset", "2")
-    nuitrack.set_config_value("Realsense2Module.Depth.FPS", "90")
-    nuitrack.set_config_value("Realsense2Module.RGB.ProcessWidth", "848")
-    nuitrack.set_config_value("Realsense2Module.RGB.ProcessHeight", "480")
-    nuitrack.set_config_value("Realsense2Module.RGB.FPS", "60")
+    nuitrack.set_config_value("Realsense2Module.Depth.FPS", f"{fps}")
+    nuitrack.set_config_value("Realsense2Module.RGB.ProcessWidth", f"{width}")
+    nuitrack.set_config_value(
+        "Realsense2Module.RGB.ProcessHeight", f"{height}")
+    nuitrack.set_config_value("Realsense2Module.RGB.FPS", f"{fps}")
 
     devices = nuitrack.get_device_list()
 
@@ -179,6 +183,12 @@ def main():
 
     nuitrack.create_modules()
     nuitrack.run()
+    return nuitrack
+
+
+def main():
+
+    nuitrack = init_nuitrack()
 
     modes = cycle(["depth", "color"])
     mode = next(modes)

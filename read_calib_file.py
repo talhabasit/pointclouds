@@ -23,5 +23,8 @@ def get_intrinsics_from_json(number=1):
 
 
 
-
+if __name__ == "__main__":
+    
+    x = get_intrinsics_from_json(0)
+    v = 0
 

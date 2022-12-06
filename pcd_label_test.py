@@ -4,7 +4,7 @@ import open3d as o3d
 import numpy as np
 import cv2
 from get_cylinder import create_cylinder_two_point
-from nuitrack_test_3d import depth_from_x_y_z_joints,create_pcd_from_img_depth
+from nuitrack_test_3d import depth_from_x_y_z_joints
 from read_calib_file import get_intrinsics_from_json
 import plyfile as ply
 from functools import cache
@@ -22,7 +22,7 @@ forearm_color = np.array([1,0,0])
 upperarm_color = np.array([0,255,0])
 
 
-intrinsics,fx,fy,cx,cy = get_intrinsics_from_json(1)
+intrinsics,fx,fy,cx,cy, width, height = get_intrinsics_from_json(3)
 
 
 @cache
@@ -85,7 +85,18 @@ def write_3d_point_cloud_to_ply(path_to_ply_file, coordinates, colors=None,
 										  'vertex')
 	ply.PlyData([plydata], comments=comments,text=text).write(path_to_ply_file) 
 
+def create_pcd_from_img_depth(img_color, img_depth, downsample=False, ds_factor=0.1):
+	color_raw = o3d.geometry.Image(img_color)
+	depth_raw = o3d.geometry.Image(img_depth)
 
+	rgbd_image = o3d.geometry.RGBDImage.create_from_color_and_depth(
+		color_raw, depth_raw, depth_trunc=10, convert_rgb_to_intensity=False)
+
+	temp_pcd = o3d.geometry.PointCloud.create_from_rgbd_image(
+		rgbd_image, intrinsic=intrinsics, project_valid_depth_only=True)
+	if downsample:
+		temp_pcd = temp_pcd.voxel_down_sample(voxel_size=ds_factor)
+	return temp_pcd
 
 
 def main():
@@ -111,6 +122,10 @@ def main():
 	img_load=cv2.cvtColor(img_load,cv2.COLOR_BGR2RGB)
 
 	pcd = create_pcd_from_img_depth(img_load,depth_load)
+	# pcd = o3d.geometry.PointCloud()
+	# depth_raw = o3d.geometry.Image(depth_load)
+	# pcd = pcd.create_from_depth_image(depth_raw,intrinsics)
+	# pcd.colors = o3d.utility.Vector3dVector(np.random.uniform(0.0, 1.0, size=[np.asarray(pcd.points).shape[0], 3]))
 	pcd.transform([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
 	pcd_points = np.asarray(pcd.points)
 
@@ -132,13 +147,14 @@ def main():
  
 	forearm_pcd = pcd.select_by_index(list_forearm)
 	upperarm_pcd = pcd.select_by_index(list_upperarm)
-	
+	forearm_pcd.paint_uniform_color([0, 0, 1])
+	upperarm_pcd.paint_uniform_color([1, 0, 0])
 
 	forearm_label = return_class_column_array(np.array(list_forearm),pcd_points,10)
 	
 	print(f"Same points :{same_elements.shape[0]}")
 	# o3d.io.write_point_cloud("./test.pts",forearm_pcd)
-	o3d.visualization.draw([forearm_pcd,upperarm_pcd,upperarm_bb,forearm_bb], show_ui=True)
+	o3d.visualization.draw([forearm_pcd,upperarm_pcd,upperarm_bb,forearm_bb,pcd], show_ui=True)
 	# o3d.visualization.draw([test], show_ui=True)
 	# o3d.visualization.draw([pcd,upperarm_bb,forearm_bb], show_ui=True)
 
