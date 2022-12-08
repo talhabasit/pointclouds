@@ -17,7 +17,7 @@ file_name = os.path.basename(__file__)
 
 joints_color = np.array([255, 0, 0])
 
-intrinsics, fx, fy, cx, cy, width, height = get_intrinsics_from_json(3)
+intrinsics, fx, fy, cx, cy, width, height = get_intrinsics_from_json(1)
 fps = 60 
 
 
@@ -117,7 +117,7 @@ def create_pcd_from_img_depth(img_color, img_depth, downsample=False, ds_factor=
 	depth_raw = o3d.geometry.Image(img_depth)
 
 	rgbd_image = o3d.geometry.RGBDImage.create_from_color_and_depth(
-		color_raw, depth_raw, depth_trunc=10, convert_rgb_to_intensity=False)
+		color_raw, depth_raw, depth_trunc=3.5, convert_rgb_to_intensity=False)
 
 	temp_pcd = o3d.geometry.PointCloud.create_from_rgbd_image(
 		rgbd_image, intrinsic=intrinsics, project_valid_depth_only=True)

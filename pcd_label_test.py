@@ -22,10 +22,10 @@ forearm_color = np.array([1,0,0])
 upperarm_color = np.array([0,255,0])
 
 
-intrinsics,fx,fy,cx,cy, width, height = get_intrinsics_from_json(3)
+intrinsics,fx,fy,cx,cy, width, height = get_intrinsics_from_json(1)
 
 
-@cache
+
 def load_joints_as_pts(filename):
 #wrist elbow shoulder
 	joints = np.load(f"./joints/{filename}.npy").astype(np.float64)
@@ -150,7 +150,7 @@ def main():
 	forearm_pcd.paint_uniform_color([0, 0, 1])
 	upperarm_pcd.paint_uniform_color([1, 0, 0])
 
-	forearm_label = return_class_column_array(np.array(list_forearm),pcd_points,10)
+	#forearm_label = return_class_column_array(np.array(list_forearm),pcd_points,10)
 	
 	print(f"Same points :{same_elements.shape[0]}")
 	# o3d.io.write_point_cloud("./test.pts",forearm_pcd)
