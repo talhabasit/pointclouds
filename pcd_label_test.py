@@ -13,6 +13,7 @@ import os
 import time
 
 from tkinter import filedialog as fd 
+from tkinter import Tk
 
 
 file_name = os.path.basename(__file__)
@@ -100,7 +101,10 @@ def create_pcd_from_img_depth(img_color, img_depth, downsample=False, ds_factor=
 
 
 def main():
-	filename = fd.askopenfilename()
+	parent = Tk() # Create the object
+	parent.overrideredirect(1) # Avoid it appearing and then disappearing quickly
+	parent.withdraw() # Hide the window as we do not want to see this one
+	filename = fd.askopenfilename(parent=parent,title='Choose a file',filetypes=[('npy files','.npy')])
 	filename = filename.split("/")[-1].split(".npy")[0]
 	p1,p2,p3 = load_joints_as_pts(filename)
 
@@ -144,7 +148,7 @@ def main():
 	for x in list(same_elements):
 		list_upperarm.remove(x)
  
- 
+	
 	forearm_pcd = pcd.select_by_index(list_forearm)
 	upperarm_pcd = pcd.select_by_index(list_upperarm)
 	forearm_pcd.paint_uniform_color([0, 0, 1])
