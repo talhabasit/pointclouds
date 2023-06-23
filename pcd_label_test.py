@@ -28,15 +28,18 @@ intrinsics,fx,fy,cx,cy, width, height = get_intrinsics_from_json(1)
 
 
 def load_joints_as_pts(filename):
-#wrist elbow shoulder
+	# Load the numpy file containing the joints
 	joints = np.load(f"./joints/{filename}.npy").astype(np.float64)
+	# Convert the joints into depth values 
 	joints = depth_from_x_y_z_joints(joints)/1000
 
 	return joints[0],joints[1],joints[2]
 
-@njit(parallel = True,fastmath = True)
+# @njit(parallel = True,fastmath = True)
 def return_class_column_array(cylinder_list,pcd_points,class_label):
+    # Create a numpy array of zeros with the same length as the pcd_points array
 	x = np.zeros(pcd_points.shape[0])
+    # Set the values of the array at the index positions in the cylinder_list to the class_label
 	x[cylinder_list] = class_label
 	return x
 	
@@ -68,35 +71,47 @@ def write_3d_point_cloud_to_ply(path_to_ply_file, coordinates, colors=None,
 			  ('z', coordinates.dtype)]
 
 	if colors is not None:
+		# Check that the colors are valid
 		if colors.shape[1] == 1:  # replicate grayscale 3 times
 			colors = np.column_stack([colors] * 3)
 		elif colors.shape[1] != 3:
 			raise Exception('Error: colors must have either 1 or 3 columns')
+		# Add the colors to the points array
 		points = np.column_stack((points, colors))
 		dtypes += [('red', colors.dtype),
 				   ('green', colors.dtype),
 				   ('blue', colors.dtype)]
 
 	if extra_properties is not None:
+		# Add the extra properties to the points array
 		points = np.column_stack((points, extra_properties))
 		dtypes += [(s, extra_properties.dtype) for s in extra_properties_names]
 
+	# Convert the points array to a list of tuples
 	tuples = [tuple(x) for x in points]
+	# Create a ply element using the tuples
 	plydata = ply.PlyElement.describe(np.asarray(tuples, dtype=dtypes),
 										  'vertex')
+	# Write the ply file
 	ply.PlyData([plydata], comments=comments,text=text).write(path_to_ply_file) 
 
 def create_pcd_from_img_depth(img_color, img_depth, downsample=False, ds_factor=0.1):
+	# Create an Open3D Image object from the color image
 	color_raw = o3d.geometry.Image(img_color)
+	# Create an Open3D Image object from the depth image
 	depth_raw = o3d.geometry.Image(img_depth)
 
+	# Create an Open3D RGBDImage object from the color and depth images
 	rgbd_image = o3d.geometry.RGBDImage.create_from_color_and_depth(
 		color_raw, depth_raw, depth_trunc=10, convert_rgb_to_intensity=False)
 
+	# Create a point cloud from the RGBDImage object
 	temp_pcd = o3d.geometry.PointCloud.create_from_rgbd_image(
 		rgbd_image, intrinsic=intrinsics, project_valid_depth_only=True)
+	# Downsample the point cloud
 	if downsample:
 		temp_pcd = temp_pcd.voxel_down_sample(voxel_size=ds_factor)
+	# Return the point cloud
 	return temp_pcd
 
 

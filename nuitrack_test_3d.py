@@ -17,8 +17,8 @@ file_name = os.path.basename(__file__)
 
 joints_color = np.array([255, 0, 0])
 
-intrinsics, fx, fy, cx, cy, width, height = get_intrinsics_from_json(1)
-fps = 60 
+intrinsics, fx, fy, cx, cy, width, height = get_intrinsics_from_json(4)
+fps = 60 # limited to 60 fps by the RGB camera depth can go up to 90 fps
 
 
 def convert_to_o3d(image, depth, skeletons, first_call):
@@ -52,7 +52,7 @@ def convert_to_o3d(image, depth, skeletons, first_call):
 	return pcd, pcd_joints
 
 
-@njit(parallel=True, fastmath=True)
+# @njit(parallel=True, fastmath=True)
 def depth_from_x_y_z_joints(joint_array: np.ndarray):
 
 	for i in prange(joint_array.shape[0]):
@@ -222,14 +222,14 @@ def main():
 
 
 if __name__ == '__main__':
-	import cProfile
-	import pstats
+	# import cProfile
+	# import pstats
 
-	with cProfile.Profile() as pr:
+	# with cProfile.Profile() as pr:
 		main()
-	print("here")
-	stats = pstats.Stats(pr)
-	stats.sort_stats(pstats.SortKey.TIME)
-	stats.print_stats()
-	stats.dump_stats(
-		filename=f"./profiling_runs/{file_name}_{time.time_ns}.prof")
+	# print("here")
+	# stats = pstats.Stats(pr)
+	# stats.sort_stats(pstats.SortKey.TIME)
+	# stats.print_stats()
+	# stats.dump_stats(
+	# 	filename=f"./profiling_runs/{file_name}_{time.time_ns}.prof")
