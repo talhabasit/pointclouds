@@ -29,7 +29,7 @@ def rotation_matrix(A,B):
    return(R)
 
 # @njit(fastmath=True,cache=True,parallel=True)
-def rod_rot(f,t):
+def rod_rot(f,t): # Rodrigues' rotation formula
     v = np.cross(f, t)
     c = np.dot(f, t)
     h = (1 - c)/(1 - c**2)

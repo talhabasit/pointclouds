@@ -11,9 +11,9 @@
 
 ## Brain Dump
 
-1. Pickle nuitrack data
+1. Pickle nuitrack data - didnt work
 
-2. pickle name is nuitrack timestamp
+2. pickle name is nuitrack timestamp - not good
 
 3. Pickling didnt work
 
