@@ -7,43 +7,6 @@ from angle import *
 from get_cylinder import create_cylinder_two_point
 
 
-def make_point_cloud(npts, center, radius, colorize):
-    pts = np.random.uniform(-radius, radius, size=[npts, 3]) + center
-    cloud = o3d.geometry.PointCloud()
-    cloud.points = o3d.utility.Vector3dVector(pts)
-    if colorize:
-        colors = np.random.uniform(0.0, 1.0, size=[npts, 3])
-        cloud.colors = o3d.utility.Vector3dVector(colors)
-    return cloud
-
-
-
-def rotation_from_two_vectors(a, b):
-    res = (b-a)
-    res_norm = res/np.linalg.norm(res)
-    alpha = np.arcsin(-res_norm[1])
-    beta = np.arctan(-res_norm[0]/res_norm[2])
-    gamma = 0
-
-    return alpha, beta, gamma
-
-
-def rotation_matrix_numpy(axis, theta):
-    mat = np.eye(3, 3)
-    axis = axis/np.sqrt(np.dot(axis, axis))
-    a = np.cos(theta/2.)
-    b, c, d = -axis*np.sin(theta/2.)
-
-    return np.array([[a*a+b*b-c*c-d*d, 2*(b*c-a*d), 2*(b*d+a*c)],
-                     [2*(b*c+a*d), a*a+c*c-b*b-d*d, 2*(c*d-a*b)],
-                     [2*(b*d-a*c), 2*(c*d+a*b), a*a+d*d-b*b-c*c]])
-
-
-def PointsInCircum(punkt, r, n=100):
-    return [(punkt[0]+np.cos(2*np.pi/n*x)*r, punkt[1]+np.sin(2*np.pi/n*x)*r, punkt[2]) for x in range(0, n)]
-
-
-
 mesh_cylinder = o3d.geometry.TriangleMesh.create_cylinder(
     radius=0.01, height=4.5)
 mesh_cylinder.compute_vertex_normals()
