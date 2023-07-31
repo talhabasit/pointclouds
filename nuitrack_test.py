@@ -37,6 +37,8 @@ def draw_skeleton(data, image):
 def save_skeleton_as_array(data, timestamp, timens):
     for skeleton in data.skeletons:
         if save_data:
+            if not os.path.exists("./joints"):
+                os.makedirs("./joints")
             with open("./joints/{}_{}.npy".format(timestamp, timens), "wb") as f:
                 skeleton_data = ([skeleton.right_wrist.projection[0],
                                   skeleton.right_wrist.projection[1],
@@ -59,18 +61,12 @@ def save_skeleton_as_dict(data, timens):
                 print("saved_skeleton")
 
 
-def save_npy(data, x, y, z, timestamp, timens):
-    xyz = np.column_stack((x, y, z))
-    if data.skeletons:
-        if save_data:
-            with open("C:/Users/Basit/Desktop/PyNuitrack/Nuitrack/pcd/{}_{}.npy".format(timestamp, timens), "wb") as f:
-                np.save(f, xyz)
-            # print(f"{timestamp}_saved")
-
 
 def save_depth_as_array(data, array, timestamp, timens):
     if data.skeletons:
         if save_data:
+            if not os.path.exists("./pcd/depth"):
+                os.makedirs("./pcd/depth")
             with open("./pcd/depth/{}_{}.npy".format(timestamp, timens), "wb") as f:
                 np.save(f, array)
             # print(f"{timestamp}_saved")
@@ -79,6 +75,8 @@ def save_depth_as_array(data, array, timestamp, timens):
 def save_rgb_as_array(data, array, timestamp, timens):
     if data.skeletons:
         if save_data:
+            if not os.path.exists("./pcd/rgb"):
+                os.makedirs("./pcd/rgb")
             with open("./pcd/rgb/{}_{}.npy".format(timestamp, timens), "wb") as f:
                 np.save(f, array)
             # print(f"{timestamp}_saved")

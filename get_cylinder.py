@@ -4,8 +4,8 @@ from angle import rod_rot
 from numba import jit
 import time
 
-def create_cylinder_two_point(p1,p2,radius=0.1):
-	mesh_cylinder = o3d.geometry.TriangleMesh.create_cylinder(radius=radius, height=np.linalg.norm(p2-p1))
+def create_cylinder_two_point(p1,p2,radius=0.1,offset=0.0):
+	mesh_cylinder = o3d.geometry.TriangleMesh.create_cylinder(radius=radius, height=np.linalg.norm(p2-p1)+offset)
 	mesh_cylinder.paint_uniform_color([1, 0, 0])
 	mid_point = np.squeeze(p1-1*(p1-p2)/2) # mid point between p1 and p2
 	resultant_norm = (p2-p1)/np.linalg.norm(p2-p1) # resultant unit vector
