@@ -9,17 +9,17 @@ def create_cylinder_two_point(p1,p2,radius=0.1):
 	mesh_cylinder.paint_uniform_color([1, 0, 0])
 	mid_point = np.squeeze(p1-1*(p1-p2)/2) # mid point between p1 and p2
 	resultant_norm = (p2-p1)/np.linalg.norm(p2-p1) # resultant unit vector
-	z = np.array([0,0,1]) # z axis
-	start = time.monotonic_ns()
+	z = np.array([0,0,1]).astype(np.float64) # The cylinder is created around the z axis
+	# start = time.monotonic_ns()
 	R = rod_rot(z,resultant_norm) # rotation matrix
-	print((time.monotonic_ns()-start))
+	# print((time.monotonic_ns()-start))
 	cyl_rot = mesh_cylinder.rotate(R).translate(mid_point) # rotate and translate
 	return cyl_rot
 
 def main(): #Testng cylinder transformations
 	#Define two arbitrary points
 	p1_sq = np.array([4, 2, 1])
-	p2_sq = np.array([3, 3, 3])
+	p2_sq = np.array([1, 2, 3])
 	#Create cylinder between these 
 	cyl_rot = create_cylinder_two_point(p1_sq,p2_sq)
 	#Plot cylinder and coordinate frames

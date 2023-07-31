@@ -5,5 +5,5 @@
     - Install the following packages
         - `pip install open3d`
         - `pip install numba`
-        - `pip install `
+        - `pip install opencv-python`
 

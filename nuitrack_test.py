@@ -15,7 +15,7 @@ from read_calib_file import get_intrinsics_from_json
 
 file_name  = os.path.basename(__file__)
 currentdir = os.path.dirname(__file__)
-save_data = False
+save_data = True
 
 
 def draw_skeleton(data, image):
@@ -37,7 +37,7 @@ def draw_skeleton(data, image):
 def save_skeleton_as_array(data, timestamp, timens):
     for skeleton in data.skeletons:
         if save_data:
-            with open("./joints/{}_{}.npy".format(timestamp, timens), "w") as f:
+            with open("./joints/{}_{}.npy".format(timestamp, timens), "wb") as f:
                 skeleton_data = ([skeleton.right_wrist.projection[0],
                                   skeleton.right_wrist.projection[1],
                                   skeleton.right_wrist.projection[2]],
@@ -151,7 +151,7 @@ def convert_depth_frame_to_pointcloud(depth_image):
 
 
 def init_nuitrack():
-    _, _, _, _, _, width, height = get_intrinsics_from_json(3)
+    _, _, _, _, _, width, height = get_intrinsics_from_json(1)
     fps = 60 
 
     nuitrack = py_nuitrack.Nuitrack()
@@ -160,16 +160,13 @@ def init_nuitrack():
     # ---enable if you want to use face tracking---
     #nuitrack.set_config_value("Faces.ToUse", "true")
     nuitrack.set_config_value("DepthProvider.Depth2ColorRegistration", "true")
-    nuitrack.set_config_value(
-        "Realsense2Module.Depth.ProcessWidth", f"{width}")
-    nuitrack.set_config_value(
-        "Realsense2Module.Depth.ProcessHeight", f"{height}")
-    nuitrack.set_config_value("Realsense2Module.Depth.ProcessMaxDepth", "7000")
+    nuitrack.set_config_value("Realsense2Module.Depth.ProcessWidth", f"{width}")
+    nuitrack.set_config_value("Realsense2Module.Depth.ProcessHeight", f"{height}")
+    nuitrack.set_config_value("Realsense2Module.Depth.ProcessMaxDepth", "5000")
     nuitrack.set_config_value("Realsense2Module.Depth.Preset", "2")
     nuitrack.set_config_value("Realsense2Module.Depth.FPS", f"{fps}")
     nuitrack.set_config_value("Realsense2Module.RGB.ProcessWidth", f"{width}")
-    nuitrack.set_config_value(
-        "Realsense2Module.RGB.ProcessHeight", f"{height}")
+    nuitrack.set_config_value("Realsense2Module.RGB.ProcessHeight", f"{height}")
     nuitrack.set_config_value("Realsense2Module.RGB.FPS", f"{fps}")
 
     devices = nuitrack.get_device_list()
@@ -193,6 +190,7 @@ def main():
     modes = cycle(["depth", "color"])
     mode = next(modes)
     first_call = True
+    win_name = "Skeletal Tracking"
     while 1:
 
         timens = time.time_ns()
@@ -220,8 +218,8 @@ def main():
                 # Python internal datatype may incur overhead
                 futures = [task1, task2, task3]
                 done, _ = mt.wait(futures, return_when=mt.ALL_COMPLETED)
-                if done:
-                    pass
+                # if done:
+                #     pass
 
             if mode == "depth":
                 draw_skeleton(data, img_depth)
@@ -234,30 +232,32 @@ def main():
             img_depth = np.array(cv2.cvtColor(
                 img_depth, cv2.COLOR_GRAY2RGB), dtype=np.uint8)
 
+
         if key == 32:
             mode = next(modes)
         if mode == "depth":
             if img_depth.size:
-                cv2.imshow('Image', img_depth)
+                cv2.imshow(winname=win_name, mat = img_depth)
         if mode == "color":
             if img_color.size:
-                cv2.imshow('Image', img_color)
+                cv2.imshow(winname=win_name,mat = img_color)
         if key == 27:
             break
+        
         print("{} ms".format((time.time_ns()-timens)/1e6))
 
     nuitrack.release()
 
 
 if __name__ == '__main__':
-    import cProfile
-    import pstats
+    # import cProfile
+    # import pstats
 
-    with cProfile.Profile() as pr:
-        main()
+    # with cProfile.Profile() as pr:
+    main()
 
-    stats = pstats.Stats(pr)
-    stats.sort_stats(pstats.SortKey.TIME)
-    #stats.print_stats()
-    stats.dump_stats(filename=f"./profiling_runs/{file_name}_{time.time_ns()}.prof")
+    # stats = pstats.Stats(pr)
+    # stats.sort_stats(pstats.SortKey.TIME)
+    # #stats.print_stats()
+    # stats.dump_stats(filename=f"./profiling_runs/{file_name}_{time.time_ns()}.prof")
     
