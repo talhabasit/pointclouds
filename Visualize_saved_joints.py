@@ -116,6 +116,7 @@ def create_pcd_from_img_depth(img_color, img_depth, downsample=False, ds_factor=
 
 
 def create_tk_dialog():
+    """Create a tkinter dialog to ask the user to choose a file to display, as well as whether to downsample the pointcloud"""
     import tkinter as tk
     from tkinter import simpledialog
     from tkinter import filedialog as fd, messagebox
@@ -144,11 +145,11 @@ def create_tk_dialog():
     if response and response is not None:
         float_input = simpledialog.askfloat(
             "Enter a float Value",
-            "Enter the percentage of points from the original pointcloud to keep",
+            "Enter the number of points to keep from the original pointcloud",
             parent=parent,
-            maxvalue=1.0,
+            maxvalue=10000,
             minvalue=0.0,
-            initialvalue=0.1,
+            initialvalue=4096,
         )
         if float_input is None:
             sys.exit()

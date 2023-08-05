@@ -51,6 +51,6 @@ class get_loss(nn.Module):
 
 if __name__ == '__main__':
     import  torch
-    model = get_model(13)
-    xyz = torch.rand(6, 9, 2048)
+    model = get_model(3).to('cuda')
+    xyz = torch.rand(6, 9, 2048).cuda()
     print(model(xyz))

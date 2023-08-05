@@ -14,12 +14,16 @@ from read_calib_file import get_intrinsics_from_json
 
 file_name = os.path.basename(__file__)
 currentdir = os.path.dirname(__file__)
-save_data = True
+save_data = False
 
 
 def draw_skeleton(data, image):
     point_color = (255, 255, 255)
     for skeleton in data.skeletons:
+        p4 = (
+            round(skeleton.right_hand.projection[0]),
+            round(skeleton.right_hand.projection[1]),
+        )
         p1 = (
             round(skeleton.right_shoulder.projection[0]),
             round(skeleton.right_shoulder.projection[1]),
@@ -35,8 +39,10 @@ def draw_skeleton(data, image):
         cv2.circle(image, p1, 8, point_color, -1)
         cv2.circle(image, p2, 8, point_color, -1)
         cv2.circle(image, p3, 8, point_color, -1)
+        cv2.circle(image, p4, 8, point_color, -1)
         cv2.line(image, p1, p2, color=point_color, thickness=2)
         cv2.line(image, p2, p3, color=point_color, thickness=2)
+        cv2.line(image, p3, p4, color=point_color, thickness=2)
 
 
 def save_skeleton_as_array(data, timestamp, timens):
@@ -162,19 +168,19 @@ def convert_depth_frame_to_pointcloud(depth_image):
 
 
 def init_nuitrack():
-    _, _, _, _, _, width, height = get_intrinsics_from_json(1)
-    fps = 60
+    _, _, _, _, _, width, height = get_intrinsics_from_json(3)
+    fps = 30 # limited to 60 fps by the RGB camera depth can go up to 90 fps / Res dependent 
 
     nuitrack = py_nuitrack.Nuitrack()
     nuitrack.init()
 
     # ---enable if you want to use face tracking---
     # nuitrack.set_config_value("Faces.ToUse", "true")
-    nuitrack.set_config_value("DepthProvider.Depth2ColorRegistration", "true")
+    nuitrack.set_config_value("DepthProvider.Depth2ColorRegistration", "true") # false/true: this is needed to align the depth and color images
     nuitrack.set_config_value("Realsense2Module.Depth.ProcessWidth", f"{width}")
     nuitrack.set_config_value("Realsense2Module.Depth.ProcessHeight", f"{height}")
     nuitrack.set_config_value("Realsense2Module.Depth.ProcessMaxDepth", "5000")
-    nuitrack.set_config_value("Realsense2Module.Depth.Preset", "2")
+    nuitrack.set_config_value("Realsense2Module.Depth.Preset", "2") # this corresponds to the modes in Realsense Viewer
     nuitrack.set_config_value("Realsense2Module.Depth.FPS", f"{fps}")
     nuitrack.set_config_value("Realsense2Module.RGB.ProcessWidth", f"{width}")
     nuitrack.set_config_value("Realsense2Module.RGB.ProcessHeight", f"{height}")
