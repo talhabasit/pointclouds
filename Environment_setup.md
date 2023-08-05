@@ -6,4 +6,6 @@
         - `pip install open3d`
         - `pip install numba`
         - `pip install opencv-python`
+        - `pip install tqdm`
+        - `pip install torch`
 
