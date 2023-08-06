@@ -38,10 +38,10 @@ def rotation_matrix(A, B):
 
 
 @njit(fastmath=True, cache=True, parallel=True)
-def rod_rot(f, t):  # Rodrigues' rotation formula
-    """Find the rotation matrix that aligns vector f with vector t"""
-    v = np.cross(f, t)
-    c = np.dot(f, t)
+def rod_rot(a, b):  # Rodrigues's rotation formula
+    """Find the rotation matrix that points vector a towards vector b"""
+    v = np.cross(a, b)
+    c = np.dot(a, b)
     h = (1 - c) / (1 - c**2)
 
     vx, vy, vz = v

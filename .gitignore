@@ -1,10 +1,7 @@
 pointclouds
 __pycache__
 .vscode
-joints
-labels
-pointclouds
-pcd
+*.npy
+*.ply
 test.ply
 profiling_runs
-labeled
