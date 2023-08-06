@@ -62,7 +62,6 @@ def save_labeled_pcds(
         # pcd = pcd.farthest_point_down_sample(4096)
 
         # pcd = pcd.uniform_down_sample(every_k_points=1000)
-        
 
         # Get the indices of the points within the bounding box of the cylinders
 
@@ -71,9 +70,9 @@ def save_labeled_pcds(
 
         list_forearm = forearm_bb.get_point_indices_within_bounding_box(pcd.points)
         list_upperarm = upperarm_bb.get_point_indices_within_bounding_box(pcd.points)
-        
+
         # Get the intersection of the two lists and remove the points from the forearm list
-        
+
         # same_elements = np.intersect1d(list_forearm,list_upperarm)#intersection of two lists
         same_elements = list(set(list_forearm).intersection(list_upperarm))
 
@@ -138,6 +137,4 @@ def save_labeled_pcds(
 
 
 if __name__ == "__main__":
-
     save_labeled_pcds(csv=False, ply=True, rgb=False)
-
