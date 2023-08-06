@@ -6,6 +6,8 @@ import numpy as np
 from angle import *
 from get_cylinder import create_cylinder_two_point
 
+"""This script can be used to test the cylinder creation and rotation functions"""
+
 
 mesh_cylinder = o3d.geometry.TriangleMesh.create_cylinder(
     radius=0.01, height=4.5)
@@ -26,7 +28,6 @@ mesh_frame_p2 = o3d.geometry.TriangleMesh.create_coordinate_frame(
 vertices = np.asarray(mesh_cylinder.vertices)
 vertex_normals = np.asarray(mesh_cylinder.vertex_normals)
 
-print("We draw a few primitives using collection.")
 
 origin_sq = np.array([0, 0, 0])
 origin = np.expand_dims(origin_sq, axis=0)
@@ -58,9 +59,7 @@ mesh_frame_p3 = o3d.geometry.TriangleMesh.create_coordinate_frame(
     size=0.3, origin=p1_sq)
 
 z = np.asarray([0,0,1]).astype(np.float64)
-# R = rotation_matrix_numpy(p3, angle_1)
 R = rod_rot(z,p4_norm)
-# cyl_rot = copy.deepcopy(mesh_cylinder).rotate(R).translate(p3)
 cyl_rot = create_cylinder_two_point(p1_sq,p2_sq,offset=0)
 o3d.visualization.draw([line_set, pcd_1, pcd_2, mesh_frame_p3,
                        mesh_frame_p1, mesh_frame_p2, cyl_rot], show_ui=True)

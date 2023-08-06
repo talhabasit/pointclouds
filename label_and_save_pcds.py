@@ -26,10 +26,15 @@ def save_labeled_pcds(
     ply=True,
     rgb=False,
 ):
-    """This function is used to save the labeled pcds as ply or csv files"""
+    """This function is used to save the labeled pcds as ply or csv files
+    Args:
+        csv (bool, optional): If True, the pcds are saved as csv files. Defaults to False.
+        ply (bool, optional): If True, the pcds are saved as ply files. Defaults to True.
+        rgb (bool, optional): Include RGB values. Defaults to False.
+    """
     for filename in tqdm(os.listdir("./joints")):
         if not ".npy" in filename:
-            print("No file selected")
+            print("No joints file found")
             sys.exit()
 
         filename = filename.split("/")[-1].split(".npy")[0]
