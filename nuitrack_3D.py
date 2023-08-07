@@ -3,16 +3,11 @@ import cv2
 import numpy as np
 import open3d as o3d
 import os
-import concurrent.futures as mt
 import time
-from read_calib_file import get_intrinsics_from_json
-import copy
-import sys
-from numba import njit, prange, jit
-
+from utils.read_calib_file import get_intrinsics_from_json
+from numba import njit, prange
 
 file_name = os.path.basename(__file__)
-
 
 joints_color = np.array([255, 0, 0])
 
@@ -116,7 +111,7 @@ def return_joints(
     Returns: joints in depth or x,y,z format if a user is in frame
     otherwise it returns the zero array
     """
-    
+
     if skeleton:
         all_joints = np.zeros((21, 3))
         first_skeleton = skeleton_data
@@ -124,17 +119,18 @@ def return_joints(
             if first_skeleton[joint_number].confidence > 0.6:
                 all_joints[joint_number, :] = first_skeleton[joint_number].projection
         all_joints = depth_from_x_y_z_joints(all_joints)
-        all_joints = all_joints / 1000.0 # convert to meters
+        all_joints = all_joints / 1000.0  # convert to meters
         return all_joints
     else:
         return skeleton_data
 
 
-# This code takes an image and depth map, and creates a point cloud from them.
-# We use the intrinsic matrix to create an RGBD image, which is then converted
-# into a point cloud. If the downsample flag is set, we downsample the point cloud
-# by the given factor (0.1 means 10x downsample).
 def create_pcd_from_img_depth(img_color, img_depth, downsample=False, ds_factor=0.1):
+    # This code takes an image and depth map, and creates a point cloud from them.
+    # We use the intrinsic matrix to create an RGBD image, which is then converted
+    # into a point cloud. If the downsample flag is set, we downsample the point cloud
+    # by the given factor (0.1 means 10x downsample).
+
     # Create o3d image objects from the given numpy arrays
     color_raw = o3d.geometry.Image(img_color)
     depth_raw = o3d.geometry.Image(img_depth)
@@ -165,7 +161,9 @@ def main():
     first_call = True
     rd_options = vis.get_render_option()
     rd_options.point_size = 3
-    rd_options.show_coordinate_frame = True # should show the coordinate frame but doesnt work for some reason
+    rd_options.show_coordinate_frame = (
+        True  # should show the coordinate frame but doesnt work for some reason
+    )
 
     def key_action_callback(vis, action, mods):
         if action == 1:  # key down
@@ -250,8 +248,8 @@ if __name__ == "__main__":
     # with cProfile.Profile() as pr:
     main()
 
-# stats = pstats.Stats(pr)
-# stats.sort_stats(pstats.SortKey.TIME)
-# stats.print_stats()
-# stats.dump_stats(
-# 	filename=f"./profiling_runs/{file_name}_{time.time_ns}.prof")
+    # stats = pstats.Stats(pr)
+    # stats.sort_stats(pstats.SortKey.TIME)
+    # stats.print_stats()
+    # stats.dump_stats(
+    # 	filename=f"./profiling_runs/{file_name}_{time.time_ns}.prof")

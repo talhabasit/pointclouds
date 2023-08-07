@@ -10,7 +10,7 @@ import numpy as np
 import open3d as o3d
 
 from PyNuitrack import py_nuitrack
-from read_calib_file import get_intrinsics_from_json
+from utils.read_calib_file import get_intrinsics_from_json
 
 file_name = os.path.basename(__file__)
 currentdir = os.path.dirname(__file__)
@@ -205,7 +205,6 @@ def main():
 
     modes = cycle(["depth", "color"])
     mode = next(modes)
-    first_call = True
     win_name = "Skeletal Tracking"
     while 1:
         timens = time.time_ns()

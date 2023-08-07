@@ -1,0 +1,67 @@
+<mxfile host="Electron" modified="2023-08-06T23:28:04.949Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.6.5 Chrome/114.0.5735.243 Electron/25.3.1 Safari/537.36" etag="Jxyk_yggKQ6BicZjOPRQ" version="21.6.5" type="device">
+  <diagram id="6a731a19-8d31-9384-78a2-239565b7b9f0" name="Page-1">
+    <mxGraphModel dx="1098" dy="820" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="none" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="n8sF6yw5eJymo0QsYwn7-57" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fillColor=#647687;strokeColor=#314354;" edge="1" parent="1" source="n8sF6yw5eJymo0QsYwn7-55" target="n8sF6yw5eJymo0QsYwn7-56">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="n8sF6yw5eJymo0QsYwn7-55" value="Load intrinsics from file" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#647687;strokeColor=#314354;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="240" y="60" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n8sF6yw5eJymo0QsYwn7-59" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fillColor=#647687;strokeColor=#314354;" edge="1" parent="1" source="n8sF6yw5eJymo0QsYwn7-56" target="n8sF6yw5eJymo0QsYwn7-58">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="n8sF6yw5eJymo0QsYwn7-56" value="Create file selection and downsampling dialog" style="whiteSpace=wrap;html=1;fillColor=#647687;strokeColor=#314354;rounded=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="240" y="140" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n8sF6yw5eJymo0QsYwn7-61" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fillColor=#647687;strokeColor=#314354;" edge="1" parent="1" source="n8sF6yw5eJymo0QsYwn7-58" target="n8sF6yw5eJymo0QsYwn7-60">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="n8sF6yw5eJymo0QsYwn7-58" value="Read Filename and load rgb, depth and joint files" style="whiteSpace=wrap;html=1;fillColor=#647687;strokeColor=#314354;rounded=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="240" y="220" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n8sF6yw5eJymo0QsYwn7-79" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fillColor=#647687;strokeColor=#314354;" edge="1" parent="1" source="n8sF6yw5eJymo0QsYwn7-60" target="n8sF6yw5eJymo0QsYwn7-62">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="n8sF6yw5eJymo0QsYwn7-60" value="Create a pointcloud/convert joints using intrinsics" style="whiteSpace=wrap;html=1;fillColor=#647687;strokeColor=#314354;rounded=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="240" y="300" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n8sF6yw5eJymo0QsYwn7-80" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fillColor=#647687;strokeColor=#314354;" edge="1" parent="1" source="n8sF6yw5eJymo0QsYwn7-62" target="n8sF6yw5eJymo0QsYwn7-64">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="n8sF6yw5eJymo0QsYwn7-62" value="Create cylinders for both pairs of Points" style="whiteSpace=wrap;html=1;fillColor=#647687;strokeColor=#314354;rounded=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="240" y="380" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n8sF6yw5eJymo0QsYwn7-67" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fillColor=#647687;strokeColor=#314354;" edge="1" parent="1" source="n8sF6yw5eJymo0QsYwn7-64" target="n8sF6yw5eJymo0QsYwn7-66">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="n8sF6yw5eJymo0QsYwn7-64" value="Get oriented bounding boxes for these cylinders" style="whiteSpace=wrap;html=1;fillColor=#647687;strokeColor=#314354;rounded=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="440" y="60" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n8sF6yw5eJymo0QsYwn7-70" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fillColor=#647687;strokeColor=#314354;" edge="1" parent="1" source="n8sF6yw5eJymo0QsYwn7-66" target="n8sF6yw5eJymo0QsYwn7-69">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="n8sF6yw5eJymo0QsYwn7-66" value="Downsample if requested by the user" style="whiteSpace=wrap;html=1;fillColor=#647687;strokeColor=#314354;rounded=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="440" y="140" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n8sF6yw5eJymo0QsYwn7-81" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fillColor=#647687;strokeColor=#314354;" edge="1" parent="1" source="n8sF6yw5eJymo0QsYwn7-69" target="n8sF6yw5eJymo0QsYwn7-73">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="n8sF6yw5eJymo0QsYwn7-69" value="Get all the points that are enclosed by the bounding boxes&amp;nbsp;" style="whiteSpace=wrap;html=1;fillColor=#647687;strokeColor=#314354;rounded=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="440" y="220" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n8sF6yw5eJymo0QsYwn7-82" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fillColor=#647687;strokeColor=#314354;" edge="1" parent="1" source="n8sF6yw5eJymo0QsYwn7-73" target="n8sF6yw5eJymo0QsYwn7-75">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="n8sF6yw5eJymo0QsYwn7-73" value="Remove duplicate points&amp;nbsp;" style="whiteSpace=wrap;html=1;fillColor=#647687;strokeColor=#314354;rounded=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="440" y="300" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="n8sF6yw5eJymo0QsYwn7-75" value="Visualise using Open3D" style="whiteSpace=wrap;html=1;fillColor=#647687;strokeColor=#314354;rounded=1;fontColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="440" y="380" width="120" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

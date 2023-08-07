@@ -2,7 +2,7 @@ import json
 import open3d as o3d
 
 
-"""This script is used to read the calibration file and return the intrinsics matrix as output
+"""This script is used to read the calibration file and return the intrinsics matrix as Open3D PinholeCameraIntrinsic object
 Note: The Intrinsics have to be saved using the realsense-viewer in json format as these are sensor specific
 """
 
@@ -10,7 +10,7 @@ def get_intrinsics_from_json(number=1):
     """This function returns open3d intrinsics matrix as output corresponding to the selected number
     #The numbers are as follow: 0)1920x1080 1)1280x720 2)640x480 3)848x480 4)640x360"""
 
-    with open("./Calib_file.json", "r") as f:
+    with open("./utils/Calib_file.json", "r") as f:
         data = json.load(f)
 
     w = int(data["rectified.{}.width".format(number)])

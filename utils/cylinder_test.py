@@ -3,8 +3,8 @@ import open3d as o3d
 import numpy as np
 
 
-from angle import *
-from get_cylinder import create_cylinder_two_point
+from utils.angle import *
+from utils.get_cylinder import create_cylinder_two_point
 
 """This script can be used to test the cylinder creation and rotation functions"""
 

@@ -1,10 +1,9 @@
 import open3d as o3d
 import numpy as np
 import cv2
-from get_cylinder import create_cylinder_two_point
+from utils.get_cylinder import create_cylinder_two_point
 from nuitrack_3D import depth_from_x_y_z_joints
-from read_calib_file import get_intrinsics_from_json
-import plyfile as ply
+from utils.read_calib_file import get_intrinsics_from_json
 import os
 import time
 import sys
@@ -26,71 +25,6 @@ def load_joints_as_pts(filename):
     joints = depth_from_x_y_z_joints(joints) / 1000.0
 
     return joints[0], joints[1], joints[2]
-
-
-# @njit(parallel = True,fastmath = True)
-def return_class_column_array(cylinder_list, pcd_points, class_label):
-    # Create a numpy array of zeros with the same length as the pcd_points array
-    x = np.zeros(pcd_points.shape[0])
-    # Set the values of the array at the index positions in the cylinder_list to the class_label
-    x[cylinder_list] = class_label
-    return x
-
-
-def write_3d_point_cloud_to_ply(
-    path_to_ply_file,
-    coordinates,
-    colors=None,
-    extra_properties=None,
-    extra_properties_names=None,
-    comments=[],
-    text=True,
-):
-    """
-    Write a 3D point cloud to a ply file.
-
-    Args:
-            path_to_ply_file (str): path to a .ply file
-            coordinates (array): numpy array of shape (n, 3) containing x, y, z coordinates
-            colors (array): numpy array of shape (n, 3) or (n, 1) containing either
-                    r, g, b or gray levels
-            extra_properties (array): optional numpy array of shape (n, k)
-            extra_properties_names (list): list of k strings with the names of the
-                    (optional) extra properties
-            comments (list): list of strings containing the ply header comments
-    """
-    points = coordinates
-    dtypes = [
-        ("x", coordinates.dtype),
-        ("y", coordinates.dtype),
-        ("z", coordinates.dtype),
-    ]
-
-    if colors is not None:
-        # Check that the colors are valid
-        if colors.shape[1] == 1:  # replicate grayscale 3 times
-            colors = np.column_stack([colors] * 3)
-        elif colors.shape[1] != 3:
-            raise Exception("Error: colors must have either 1 or 3 columns")
-        # Add the colors to the points array
-        points = np.column_stack((points, colors))
-        dtypes += [
-            ("red", colors.dtype),
-            ("green", colors.dtype),
-            ("blue", colors.dtype),
-        ]
-
-    if extra_properties is not None:
-        # Add the extra properties to the points array
-        points = np.column_stack((points, extra_properties))
-        dtypes += [(s, extra_properties.dtype) for s in extra_properties_names]
-
-    # Convert the points array to a list of tuples
-    tuples = [tuple(x) for x in points]
-    # Create a ply element using the tuples
-    plydata = ply.PlyElement.describe(np.asarray(tuples, dtype=dtypes), "vertex")
-    # Write the ply file
-    ply.PlyData([plydata], comments=comments, text=text).write(path_to_ply_file)
 
 
 def create_pcd_from_img_depth(img_color, img_depth, downsample=False, ds_factor=0.1):
@@ -128,6 +62,7 @@ def create_tk_dialog():
         parent=parent,
         title="Choose a file to display",
         filetypes=[("npy files", ".npy")],
+        initialdir="./joints",
     )
 
     if not ".npy" in filename:
