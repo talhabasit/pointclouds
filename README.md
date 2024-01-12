@@ -1,6 +1,6 @@
 # Segmentation of a Human Arm in Point Clouds using Nuitrack
 
-This repository contains the code for the segmentation of a human arm in point clouds using the Nuitrack SDK. The code heavily relies on [Nuitrack SDK](https://nuitrack.com/) and the [Open3D](http://www.open3d.org/) library. The code was written using Python 3.9.16 and was tested on Windows 10/11.
+This repository contains the code for the segmentation of a human arm in point clouds using the Nuitrack SDK. The code heavily relies on [Nuitrack SDK](https://nuitrack.com/) and the [Open3D](http://www.open3d.org/) library. The code was tested with Python 3.9.16 under Windows 10/11.
 
 Prerequisites:
 - Nuitrack SDK 
