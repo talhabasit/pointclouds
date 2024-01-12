@@ -24,8 +24,7 @@ Results:
     - `pip install tqdm`
     - `pip install torch`
     - The current PyNuitrack version from the Nuitrack github repo under the link: [PyNuitrack](https://github.com/3DiVi/nuitrack-sdk/tree/master/PythonNuitrack-beta)
-    - `pip install tqdm`
-    - `pip install torch`
+  
 
 ## Class Names
 - 0: Background
